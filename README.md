@@ -192,12 +192,13 @@ Batch Processing: Process logs in batches for aggregation and storage in a data 
 # Addressing Key Issues and Bottlenecks
 
 **Scalability**
-API Layer: Deploy the API layer across multiple instances behind a load balancer to distribute incoming requests evenly.
 
-Sharding: Implement sharding to distribute data across multiple database nodes.
-  Range-Based Sharding: If you are using an auto-incrementing ID as the shard key, the first shard might store IDs 1 to 1,000,000, the second shard 1,000,001 to 2,000,000, and so on. 
+* API Layer: Deploy the API layer across multiple instances behind a load balancer to distribute incoming requests evenly.
+
+* Sharding: Implement sharding to distribute data across multiple database nodes.
+  1. Range-Based Sharding: If you are using an auto-incrementing ID as the shard key, the first shard might store IDs 1 to 1,000,000, the second shard 1,000,001 to 2,000,000, and so on. 
     Limitations: If your data isn’t evenly distributed, one shard may become much larger than others, leading to uneven load distribution (known as a "hotspot").
-  Hash-Based Sharding: It involves applying a hash function to the shard key to determine which shard the data should go to. For example, you might hash the short URL identifier and then take the modulo with the number of shards to determine the shard (e.g., hash(short_url) % N where N is the number of shards).
+  2. Hash-Based Sharding: It involves applying a hash function to the shard key to determine which shard the data should go to. For example, you might hash the short URL identifier and then take the modulo with the number of shards to determine the shard (e.g., hash(short_url) % N where N is the number of shards).
     Limitations: When scaling out (adding new shards), re-hashing and redistributing data can be challenging and requires consistent hashing techniques to minimize data movement when adding or removing shards.
 
 **Caching**
