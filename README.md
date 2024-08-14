@@ -2,48 +2,48 @@
 Design a URL Shortener Service Like TinyURL.
 
 # Functional Requirements:
-Generate a unique short URL for a given long URL
-Redirect the user to the original URL when the short URL is accessed
-Allow users to customize their short URLs (optional)
-Support link expiration where URLs are no longer accessible after a certain period
-Provide analytics on link usage (optional)
+1. Generate a unique short URL for a given long URL
+2. Redirect the user to the original URL when the short URL is accessed
+3. Allow users to customize their short URLs (optional)
+4. Support link expiration where URLs are no longer accessible after a certain period
+5. Provide analytics on link usage (optional)
 
 # Non-Functional Requirements:
-High availability (the service should be up 99.9% of the time). This is really important to consider because if the service goes down, all the URL redirection will start failing.
-Low latency (url shortening and redirects should happen in milliseconds)
-Scalability (the system should handle millions of requests per day)
-Durability (shortened URLs should work for years)
-Security to prevent malicious use, such as phishing.
+1. High availability (the service should be up 99.9% of the time). This is really important to consider because if the service goes down, all the URL redirection will start failing.
+2. Low latency (url shortening and redirects should happen in milliseconds)
+3. Scalability (the system should handle millions of requests per day)
+4. Durability (shortened URLs should work for years)
+5. Security to prevent malicious use, such as phishing.
 
 # Capacity Esitmatation
 
 **Assumptions**
-Daily URL Shortening Requests: 1 million requests per day
-Read:Write ratio: 100:1 (for every URL creation, we expect 100 redirects)
-Peak Traffic: 10x the average load (100 requests per second during peak hours)
-URL Lengths: Average original URL length of 100 characters
+* Daily URL Shortening Requests: 1 million requests per day
+* Read:Write ratio: 100:1 (for every URL creation, we expect 100 redirects)
+* Peak Traffic: 10x the average load (100 requests per second during peak hours)
+* URL Lengths: Average original URL length of 100 characters
 
 **Throughput Requirements**
 Number of seconds in a day : 24*60*60 = 86400
 Number of requests expected in a day : 1 million
 Average Writes Per Second (WPS): (1,000,000 requests / 86,400 seconds) ≈ 12
-Peak WPS: 12 × 10 = 120
+* Peak WPS: 12 × 10 = 120
 
 Since Read:Write ratio is 100:1
 Average Redirects per second (RPS): 12 * 100 = 1,200
-Peak RPS: 120 * 100 = 12,000
+* Peak RPS: 120 * 100 = 12,000
 
 **Storage Estimation**
 For each shortened URL, we need to store the following information:
-Short URL: 7 characters (Base62 encoded)
-Original URL: 100 characters (on average)
-Creation Date: 8 bytes (timestamp)
-Expiration Date: 8 bytes (timestamp)
-Click Count: 4 bytes (integer)
+* Short URL: 7 characters (Base62 encoded)
+* Original URL: 100 characters (on average)
+* Creation Date: 8 bytes (timestamp)
+* Expiration Date: 8 bytes (timestamp)
+* Click Count: 4 bytes (integer)
 
-Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes
-Total URLs per Year: 1,000,000 × 365 = 365,000,000
-Total Storage per Year: 365,000,000 × 127 bytes ≈ 46.4 GB
+* Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes
+* Total URLs per Year: 1,000,000 × 365 = 365,000,000
+* Total Storage per Year: 365,000,000 × 127 bytes ≈ 46.4 GB
 
 **Bandwidth Estimation**
 The total read bandwidth per day should be based on the actual peak redirects, not the average ones.
@@ -51,8 +51,8 @@ Since the ratio of redirects to URL creation is 100:1, if there are 1 million UR
 1,000,000 URL shortenings × 100 = 100,000,000 redirects per day
 
 Assuming the HTTP 301 redirect response size is about 500 bytes (includes headers and the short URL).
-Total Read Bandwidth per Day: 100,000,000 × 500 bytes = 50 GB / day
-Peak Bandwidth: If peak traffic is 10x average, the peak bandwidth could be as high as 500 bytes × 12,000 RPS = 6 MB/s
+* Total Read Bandwidth per Day: 100,000,000 × 500 bytes = 50 GB / day
+* Peak Bandwidth: If peak traffic is 10x average, the peak bandwidth could be as high as 500 bytes × 12,000 RPS = 6 MB/s
 
 **Caching Estimation**
 Since it’s a read-heavy system, caching can significantly reduce the latency for read requests. If we want to cache some of the hot URLs, we can follow the 80-20 rule where 20% of the URLs generate 80% of the read traffic.
@@ -61,26 +61,26 @@ As calculated above, Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes
 
 Since we have 1 million writes per day, if we only cache 20% of the hot urls in a day, Total cache memory required = 1M * 0.2 * 127 Bytes = 25.4 MB.
 Assuming a cache hit ratio of 90%, we only need to handle 10% of the redirect requests directly from the database.
-Requests hitting the DB: 1,200 × 0.10 ≈ 120 RPS
+* Requests hitting the DB: 1,200 × 0.10 ≈ 120 RPS
 
 This is well within the capabilities of most distributed databases like DynamoDB or Cassandra, especially with sharding and partitioning.
 
 **Infrastructure Sizing**
 To handle the above estimations:
-API Servers: Start with 4-6 instances behind a load balancer, each capable of handling 200-300 RPS.
-Database: A distributed database with 10-20 nodes to handle both storage and high read/write throughput.
-Cache Layer: A distributed cache with 3-4 nodes, depending on the load and cache hit ratio.
+* API Servers: Start with 4-6 instances behind a load balancer, each capable of handling 200-300 RPS.
+* Database: A distributed database with 10-20 nodes to handle both storage and high read/write throughput.
+* Cache Layer: A distributed cache with 3-4 nodes, depending on the load and cache hit ratio.
 
 # High Level Design
 On a high level, we would need following components in our design:
 
-Load Balancer: Distributes incoming requests across multiple application servers.
-Application Servers: Handles incoming requests for shortening URLs and redirecting users.
-URL Generation Service: Generates short URLs, handles custom aliases, and manages link expirations.
-Redirection Service: Redirects the users to the original URL.
-Database: Stores mappings between short URLs and long URLs.
-Cache: Stores frequently accessed URL mappings for faster retrieval.
-Analytics Service (optional): Tracks usage statistics like the number of clicks, geographic location, etc.
+1. Load Balancer: Distributes incoming requests across multiple application servers.
+2. Application Servers: Handles incoming requests for shortening URLs and redirecting users.
+3. URL Generation Service: Generates short URLs, handles custom aliases, and manages link expirations.
+4. Redirection Service: Redirects the users to the original URL.
+5. Database: Stores mappings between short URLs and long URLs.
+6. Cache: Stores frequently accessed URL mappings for faster retrieval.
+7. Analytics Service (optional): Tracks usage statistics like the number of clicks, geographic location, etc.
 
 # Database Design
 To choose the right database for our needs, let's consider some factors that can affect our choice:
@@ -115,7 +115,7 @@ Collision Handling: The algorithm should be able to handle duplicate url generat
 * Approach 1: Hashing and Encoding
 A common approach for generating short URLs is to use a hash function, such as MD5 or SHA-256 to generate a fixed-length hash of the original URL. This hash is then encoded into a shorter form using Base62. Base62 uses alphanumeric characters (A-Z, a-z, 0-9), which are URL-friendly and provide a dense encoding space. The length of the short URL is determined by the number of characters in the Base62 encoded string. A 7-character Base62 string can represent approximately 3.5 billion unique URLs (62^7).
 
-Example Workflow:
+**Example Workflow:**
 User submits a request to generate short url for the long url: https://www.example.com/some/very/long/url/that/needs/to/be/shortened
 Generate an MD5 hash of the long URL. MD5 produces a 128-bit hash, typically a 32-character hexadecimal string: 1b3aabf5266b0f178f52e45f4bb430eb
 Instead of encoding the entire 128-bit hash, we typically use a portion of the hash (e.g., the first few bytes) to create a more manageable short URL.
@@ -127,12 +127,14 @@ The specific choice of 6 bytes (48 bits) is important because it produces a deci
 Although this solution works for most cases, it has few issues:
 It can generate the same shortened url for the identical long url requests.
 Although rare, collisions can happen, where two different URLs generate the same hash.
-Collision Resolution Strategies:
-Re-Hashing: If a collision is detected, the service can re-hash the original URL with a different seed or use additional bits from the original hash to generate a unique short URL.
-Incremental Suffix: Another approach is to append an incremental suffix (e.g., "-1", "-2") to the short URL until a unique key is found.
+
+* Collision Resolution Strategies:
+1. Re-Hashing: If a collision is detected, the service can re-hash the original URL with a different seed or use additional bits from the original hash to generate a unique short URL.
+2. Incremental Suffix: Another approach is to append an incremental suffix (e.g., "-1", "-2") to the short URL until a unique key is found.
 
 * Approach 2: Unique ID Generation
 Instead of hashing, another method to generate short URLs is to use incremental IDs. In this approach, each new URL that is added to the system is assigned a unique, auto-incrementing ID.
+
 For example, the first URL might be assigned ID 1, the second URL 2, and so on. Once the ID is generated, it is converted into a shorter, URL-friendly format using Base62 encoding. This encoded string becomes the short URL. Because the IDs are generated incrementally, each new ID is unique and sequential. There is no possibility that two different URLs will receive the same ID, as long as the ID generation mechanism (e.g., a database with an auto-incrementing primary key) is functioning correctly.
 
 While the incremental ID approach is straightforward and collision-free, there are a few considerations:
@@ -144,23 +146,23 @@ Mitigation: Distributed ID generation strategies (like Twitter’s Snowflake) ca
 # Custom Aliasing
 Custom aliasing allows users to specify their own short URL instead of accepting a system-generated one. This feature is especially useful for branding or memorable URLs.
 
-Custom Alias Validation - 
+**Custom Alias Validation -**
 Uniqueness Check: The service must ensure that the custom alias provided by the user is unique and not already in use. This requires a lookup in the database to verify that the alias does not exist.
 Character Validation: Custom aliases should be validated to ensure they contain only allowed characters (e.g., alphanumeric characters, hyphens). This prevents the creation of problematic or non-URL-friendly aliases.
 Reserved Aliases: Some aliases might be reserved for internal use (e.g., "help", "admin", "about"). The Service Layer should check against a list of reserved words to prevent users from using these.
 
-Custom Alias Storage - 
+**Custom Alias Storage - **
 Alias Mapping: Once validated, the custom alias is mapped to the original URL and stored in the database, similar to system-generated short URLs.
 Conflict Resolution: If the requested custom alias is already taken, the Service Layer should return an appropriate error message or suggest alternatives.
 
 # Link Expiration
 Link expiration allows URLs to be valid only for a specified period, after which they become inactive.
 
-Expiration Date Handling:
+**Expiration Date Handling:**
 User-Specified Expiration: Users can specify an expiration date when creating the short URL. The service should validate this date to ensure it's in the future and within allowable limits (e.g., not exceeding a maximum expiration period).
 Default Expiration: If no expiration date is provided, the service can assign a default expiration period (e.g., 1 year) or keep the link active indefinitely.
 
-Expiration Logic:
+**Expiration Logic:**
 Background Jobs: A background job or cron job can be scheduled to periodically check for expired URLs and mark them as inactive or delete them from the database.
 Real-Time Expiration: During the redirection process, the service checks whether the URL has expired. If expired, the service can return an error message or redirect the user to a default page.
 
@@ -171,7 +173,7 @@ This involves two key steps:
 Database Lookup: The Service Layer queries the database to retrieve the original URL associated with the short URL. This lookup needs to be optimized for speed, as it directly impacts user experience.
 Redirection: Once the long URL is retrieved, the service issues an HTTP redirect response, sending the user to the original URL.
 
-Example Workflow:
+**Example Workflow:**
 A user clicks on https://short.ly/abc123.
 The Redirection Service receives the request and extracts the short URL identifier (abc123).
 The service looks up abc123 in the database or cache to find the associated long URL.
