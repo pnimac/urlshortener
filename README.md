@@ -1,5 +1,3 @@
-![image](https://github.com/user-attachments/assets/9a034f02-7472-45eb-9862-7a796c3884bd)
-
 # URLShortener
 Design a URL Shortener Service Like TinyURL.
 
@@ -72,9 +70,6 @@ To handle the above estimations:
 API Servers: Start with 4-6 instances behind a load balancer, each capable of handling 200-300 RPS.
 Database: A distributed database with 10-20 nodes to handle both storage and high read/write throughput.
 Cache Layer: A distributed cache with 3-4 nodes, depending on the load and cache hit ratio.
-
-# Out of Scope
-The user registers an account
 
 # High Level Design
 On a high level, we would need following components in our design:
