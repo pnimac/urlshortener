@@ -104,7 +104,7 @@ We would need two tables: one for storing url mappings and one for storing user 
 The client executes an HTTP PUT request to the server to shorten a URL. T
 he HTTP PUT method is used because the PUT is idempotent and the idempotency quality resonates with the given requirement of 1-to-1 mapping between the long and short URL.
 
-## URL redirection API
+## URL redirection API:
 The client executes an HTTP GET request to redirect from the short URL to the original long URL. There is no request body for an HTTP GET request.
 The server responds with status code 301 Moved Permanently. The status code 301 indicates that the short URL is permanently moved to the long URL. The web crawler updates its records when the status code 301 is received
 
