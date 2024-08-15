@@ -127,13 +127,18 @@ A common approach for generating short URLs is to use a hash function, such as M
 1. User submits a request to generate short url for the long url: https://www.example.com/long/url/to/be/shortened .
 2. Generate an MD5 hash of the long URL. MD5 produces a 128-bit hash, typically a 32-character hexadecimal string: 1b3aabf5266b0f178f52e45f4bb430eb
 3. Instead of encoding the entire 128-bit hash, we typically use a portion of the hash (e.g., the first few bytes) to create a more manageable short URL.
-4. First 6 bytes of the hash: 1b3aabf5266b
+4. First 6 bytes of the hash: 1b3aabf5266b. The specific choice of 6 bytes (48 bits) is important because it produces a decimal number that typically converts to a Base62 string of approximately 7 characters.
 5. Convert these bytes to decimal: 1b3aabf5266b (hexadecimal) → 47770830013755 (decimal)
 6. Encode the result into a Base62 encoded string: DZFbb43
 7. The generated short URL DZFbb43, along with the original long URL and other metadata like expiration time as UrlMapping Entity, is stored in the database via urlRepository. 
 8. When a user later visits the short URL (e.g., https://yourservice.com/DZFbb43), the service checks the database to retrieve the corresponding long URL for redirection.
 
-The specific choice of 6 bytes (48 bits) is important because it produces a decimal number that typically converts to a Base62 string of approximately 7 characters.
+Note : We may also need to implement Salting to avoid hash collision. (optional)
+* Generate a Unique Salt: Create a unique salt for each URL. This could be a random value or derived from some unique aspect of the URL or request.
+* Combine the URL and Salt: Concatenate the URL with the salt before hashing.
+* Hash the Combined String: Apply the hash function (e.g., MD5) to the combined string.
+* Encode the Hash: Convert the hash to a short URL using Base62 encoding or another encoding method.
+* Store the Salt: Store the salt along with the URL mapping to ensure you can handle collisions and lookups properly.
 
 Although this solution works for most cases, it has few issues:
 1. It can generate the same shortened url for the identical long url requests.
