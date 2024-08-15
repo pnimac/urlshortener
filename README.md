@@ -33,8 +33,7 @@ Design a URL Shortener Service Like TinyURL.
 * Average Redirects per second (RPS): 12 * 100 = 1,200
 * **Peak RPS: 120 * 100 = 12,000**
 
-**Storage Estimation**
-For each shortened URL, we need to store the following information:
+**Storage Estimation (for each shortened URL, we need to store the following information):** 
 * Short URL: 7 characters (Base62 encoded)
 * Original URL: 100 characters (on average)
 * Creation Date: 8 bytes (timestamp)
@@ -46,25 +45,23 @@ For each shortened URL, we need to store the following information:
 *  **Total Storage per Year: 365,000,000 × 127 bytes ≈ 46.4 GB**
 
 **Bandwidth Estimation:**
-The total read bandwidth per day should be based on the actual peak redirects, not the average ones. Since the ratio of redirects to URL creation is 100:1, 
-if there are 1 million URL shortening requests per day, the number of redirects per day would be:
+
+The total read bandwidth per day should be based on the actual peak redirects, not the average ones. Since the ratio of redirects to URL creation is 100:1, if there are 1 million URL shortening requests per day, the number of redirects per day would be:
 * **1,000,000 URL shortenings × 100 = 100,000,000 redirects per day**
 
 Assuming the HTTP 301 redirect response size is about 500 bytes (includes headers and the short URL).
-* Total Read Bandwidth per Day: 100,000,000 × 500 bytes = 50 GB / day
-* Peak Bandwidth: If peak traffic is 10x average, the peak bandwidth could be as high as 500 bytes × 12,000 RPS = 6 MB/s
+* **Total Read Bandwidth per Day: 100,000,000 × 500 bytes = 50 GB / day**
+* **Peak Bandwidth: If peak traffic is 10x average, the peak bandwidth could be as high as 500 bytes × 12,000 RPS = 6 MB/s**
 
 **Caching Estimation**
-Since it’s a read-heavy system, caching can significantly reduce the latency for read requests. If we want to cache some of the hot URLs, we can follow the 80-20 rule where 20% of the URLs generate 80% of the read traffic.
 
-As calculated above, Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes
+Since it’s a read-heavy system, caching can significantly reduce the latency for read requests. If we want to cache some of the hot URLs, we can follow the 80-20 rule where 20% of the URLs generate 80% of the read traffic. As calculated above, Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes
 
 Since we have 1 million writes per day, if we only cache 20% of the hot urls in a day, 
-Total cache memory required = 1M * 0.2 * 127 Bytes = 25.4 MB.
+* **Total cache memory required = 1M * 0.2 * 127 Bytes = 25.4 MB.**
 
 Assuming a cache hit ratio of 90%, we only need to handle 10% of the redirect requests directly from the database.
-
-**Requests hitting the DB: 1,200 × 0.10 ≈ 120 RPS**
+* **Requests hitting the DB: 1,200 × 0.10 ≈ 120 RPS**
 
 This is well within the capabilities of most distributed databases like DynamoDB or Cassandra, especially with sharding and partitioning.
 
