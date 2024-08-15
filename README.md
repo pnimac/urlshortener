@@ -1,8 +1,6 @@
 # URLShortener
 Design a URL Shortener Service Like TinyURL.
 
-![Alt text](images/screenshot.png)
-
 # Functional Requirements:
 1. Generate a unique short URL for a given long URL.
 2. Redirect the user to the original URL when the short URL is accessed.
@@ -228,3 +226,6 @@ Batch Processing: Process logs in batches for aggregation and storage in a data 
 * Input Validation : Ensure that the URLs being shortened do not contain malicious content.
 * HTTPS : All communication between clients and the service should be encrypted using HTTPS to prevent eavesdropping and man-in-the-middle attacks.
 * Monitoring and Alerts : Set up monitoring for unusual activity patterns and trigger alerts for potential DDoS attacks or misuse.
+
+# Screenshot
+![Alt text](images/screenshot.png)
