@@ -73,7 +73,7 @@ To handle the above estimations:
 
 # High Level Design
 
-![Alt text](images/hld)
+![Alt text](images/hld.png)
 
 On a high level, we would need following components in our design:
 
@@ -116,7 +116,7 @@ Here are some things to think about when picking an algorithm to shorten the URL
 2. Scalability: The algorithm should work well even with billions of URLs.
 3. Collision Handling: The algorithm should be able to handle duplicate url generations.
 
-![Alt text](images/hashingapproach)
+![Alt text](images/hashapproach.png)
 
 ## Approach 1: Hashing and Encoding
 A common approach for generating short URLs is to use a hash function, such as MD5 or SHA-256 to generate a fixed-length hash of the original URL. This hash is then encoded into a shorter form using Base62. Base62 uses alphanumeric characters (A-Z, a-z, 0-9), which are URL-friendly and provide a dense encoding space. The length of the short URL is determined by the number of characters in the Base62 encoded string. A 7-character Base62 string can represent approximately 3.5 billion unique URLs (62^7).
@@ -141,7 +141,7 @@ Although this solution works for most cases, it has few issues:
 1. Re-Hashing: If a collision is detected, the service can re-hash the original URL with a different seed or use additional bits from the original hash to generate a unique short URL.
 2. Incremental Suffix: Another approach is to append an incremental suffix (e.g., "-1", "-2") to the short URL until a unique key is found.
 
-![Alt text](images/idapproach)
+![Alt text](images/idapproach.png)
 
 ## Approach 2: Unique ID Generation
 Instead of hashing, another method to generate short URLs is to use incremental IDs. In this approach, each new URL that is added to the system is assigned a unique, auto-incrementing ID.
