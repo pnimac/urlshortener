@@ -26,12 +26,17 @@ Design a URL Shortener Service Like TinyURL.
 **Throughput Requirements:**
 
 Number of seconds in a day : 24*60*60 = 86400
+
 Number of requests expected in a day : 1 million
+
 Average Writes Per Second (WPS): (1,000,000 requests / 86,400 seconds) ≈ 12
+
 **Peak WPS: 12 × 10 = 120**
 
 Since Read-Write ratio is 100:1
+
 Average Redirects per second (RPS): 12 * 100 = 1,200
+
 **Peak RPS: 120 * 100 = 12,000**
 
 **Storage Estimation**
