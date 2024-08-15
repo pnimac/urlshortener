@@ -2,36 +2,36 @@
 Design a URL Shortener Service Like TinyURL.
 
 # Functional Requirements:
-1. Generate a unique short URL for a given long URL
-2. Redirect the user to the original URL when the short URL is accessed
-3. Allow users to customize their short URLs (optional)
-4. Support link expiration where URLs are no longer accessible after a certain period
+1. Generate a unique short URL for a given long URL.
+2. Redirect the user to the original URL when the short URL is accessed.
+3. Support link expiration where URLs are no longer accessible after a certain period.
+4. Allow users to customize their short URLs (optional)
 5. Provide analytics on link usage (optional)
 
 # Non-Functional Requirements:
 1. High availability (the service should be up 99.9% of the time). This is really important to consider because if the service goes down, all the URL redirection will start failing.
-2. Low latency (url shortening and redirects should happen in milliseconds)
-3. Scalability (the system should handle millions of requests per day)
-4. Durability (shortened URLs should work for years)
+2. Low latency (url shortening and redirects should happen in milliseconds).
+3. Scalability (the system should handle millions of requests per day).
+4. Durability (shortened URLs should work for years).
 5. Security to prevent malicious use, such as phishing.
 
 # Capacity Esitmatation
 
 **Assumptions**
-* Daily URL Shortening Requests: 1 million requests per day
-* Read:Write ratio: 100:1 (for every URL creation, we expect 100 redirects)
-* Peak Traffic: 10x the average load (100 requests per second during peak hours)
-* URL Lengths: Average original URL length of 100 characters
+* Daily URL Shortening Requests: 1 million requests per day.
+* Read-Write ratio is 100:1 (for every URL creation, we expect 100 redirects).
+* Peak Traffic: 10x the average load (100 requests per second during peak hours).
+* URL Lengths: Average original URL length of 100 characters.
 
 **Throughput Requirements**
 Number of seconds in a day : 24*60*60 = 86400
 Number of requests expected in a day : 1 million
 Average Writes Per Second (WPS): (1,000,000 requests / 86,400 seconds) ≈ 12
-* Peak WPS: 12 × 10 = 120
+**Peak WPS: 12 × 10 = 120**
 
 Since Read:Write ratio is 100:1
 Average Redirects per second (RPS): 12 * 100 = 1,200
-* Peak RPS: 120 * 100 = 12,000
+**Peak RPS: 120 * 100 = 12,000**
 
 **Storage Estimation**
 For each shortened URL, we need to store the following information:
@@ -41,14 +41,14 @@ For each shortened URL, we need to store the following information:
 * Expiration Date: 8 bytes (timestamp)
 * Click Count: 4 bytes (integer)
 
-* Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes
-* Total URLs per Year: 1,000,000 × 365 = 365,000,000
-* Total Storage per Year: 365,000,000 × 127 bytes ≈ 46.4 GB
+**Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes**
+**Total URLs per Year: 1,000,000 × 365 = 365,000,000**
+**Total Storage per Year: 365,000,000 × 127 bytes ≈ 46.4 GB**
 
 **Bandwidth Estimation**
 The total read bandwidth per day should be based on the actual peak redirects, not the average ones.
 Since the ratio of redirects to URL creation is 100:1, if there are 1 million URL shortening requests per day, the number of redirects per day would be:
-1,000,000 URL shortenings × 100 = 100,000,000 redirects per day
+**1,000,000 URL shortenings × 100 = 100,000,000 redirects per day**
 
 Assuming the HTTP 301 redirect response size is about 500 bytes (includes headers and the short URL).
 * Total Read Bandwidth per Day: 100,000,000 × 500 bytes = 50 GB / day
@@ -61,7 +61,8 @@ As calculated above, Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes
 
 Since we have 1 million writes per day, if we only cache 20% of the hot urls in a day, Total cache memory required = 1M * 0.2 * 127 Bytes = 25.4 MB.
 Assuming a cache hit ratio of 90%, we only need to handle 10% of the redirect requests directly from the database.
-* Requests hitting the DB: 1,200 × 0.10 ≈ 120 RPS
+
+**Requests hitting the DB: 1,200 × 0.10 ≈ 120 RPS**
 
 This is well within the capabilities of most distributed databases like DynamoDB or Cassandra, especially with sharding and partitioning.
 
