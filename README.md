@@ -24,20 +24,14 @@ Design a URL Shortener Service Like TinyURL.
 * URL Lengths: Average original URL length of 100 characters.
 
 **Throughput Requirements:**
+* Number of seconds in a day : 24*60*60 = 86400
+* Number of requests expected in a day : 1 million
+* Average Writes Per Second (WPS): (1,000,000 requests / 86,400 seconds) ≈ 12
+*  **Peak WPS: 12 × 10 = 120**
 
-Number of seconds in a day : 24*60*60 = 86400
-
-Number of requests expected in a day : 1 million
-
-Average Writes Per Second (WPS): (1,000,000 requests / 86,400 seconds) ≈ 12
-
-**Peak WPS: 12 × 10 = 120**
-
-Since Read-Write ratio is 100:1
-
-Average Redirects per second (RPS): 12 * 100 = 1,200
-
-**Peak RPS: 120 * 100 = 12,000**
+* Since Read-Write ratio is 100:1
+* Average Redirects per second (RPS): 12 * 100 = 1,200
+* **Peak RPS: 120 * 100 = 12,000**
 
 **Storage Estimation**
 For each shortened URL, we need to store the following information:
@@ -47,16 +41,14 @@ For each shortened URL, we need to store the following information:
 * Expiration Date: 8 bytes (timestamp)
 * Click Count: 4 bytes (integer)
 
-**Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes**
-
-**Total URLs per Year: 1,000,000 × 365 = 365,000,000**
-
-**Total Storage per Year: 365,000,000 × 127 bytes ≈ 46.4 GB**
+*  **Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes**
+*  **Total URLs per Year: 1,000,000 × 365 = 365,000,000**
+*  **Total Storage per Year: 365,000,000 × 127 bytes ≈ 46.4 GB**
 
 **Bandwidth Estimation:**
 The total read bandwidth per day should be based on the actual peak redirects, not the average ones. Since the ratio of redirects to URL creation is 100:1, 
 if there are 1 million URL shortening requests per day, the number of redirects per day would be:
-**1,000,000 URL shortenings × 100 = 100,000,000 redirects per day**
+* **1,000,000 URL shortenings × 100 = 100,000,000 redirects per day**
 
 Assuming the HTTP 301 redirect response size is about 500 bytes (includes headers and the short URL).
 * Total Read Bandwidth per Day: 100,000,000 × 500 bytes = 50 GB / day
