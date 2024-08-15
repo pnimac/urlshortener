@@ -8,6 +8,7 @@ import com.pnimac.urlshortner.model.UrlMapping;
 import com.pnimac.urlshortner.repository.UrlRepository;
 import com.pnimac.urlshortner.util.Base62Encoder;
 import com.pnimac.urlshortner.util.MD5HashGenerator;
+import com.pnimac.urlshortner.util.SaltGenerator;
 
 import java.util.Optional;
 
@@ -29,12 +30,24 @@ public class UrlGenerationService {
 	@Value("${app.url.base}")
 	private String baseUrl;
 
+	@Value("${url.shortener.default.expiration.days}")
+	private long defaultExpirationDays;
+
 	// Method to generate short URL using MD5 and Base62 encoding
-	public UrlMapping createShortUrl(String longUrl, String customAlias, long expirationTime) {
+	public UrlMapping createShortUrl(String longUrl, String customAlias, Long expirationTime) {
 		UrlMapping urlMapping = new UrlMapping();
 		urlMapping.setLongUrl(longUrl);
 		urlMapping.setCreationDate(System.currentTimeMillis());
+
+		// Set default expiration date if none is provided
+		if (expirationTime == null) {
+			expirationTime = System.currentTimeMillis() + getDefaultExpirationPeriodMillis();
+		}
 		urlMapping.setExpirationDate(expirationTime);
+
+		String salt = SaltGenerator.generateSalt(); // Generate a unique salt
+		urlMapping.setSalt(salt); // Store the salt
+
 		String shortUrl;
 		if (customAlias != null && !customAlias.isEmpty()) {
 			// Check if custom alias already exists
@@ -46,8 +59,8 @@ public class UrlGenerationService {
 			shortUrl = baseUrl + "/" + customAlias;
 			urlMapping.setShortUrl(customAlias);
 		} else {
-			// Generate short URL code using MD5 and Base62
-			shortUrl = generateShortUrl(longUrl);
+			String saltedUrl = longUrl + salt; // Combine URL and salt
+			shortUrl = generateShortUrl(saltedUrl);// Generate short URL code using MD5 and Base62
 			shortUrl = baseUrl + "/" + shortUrl;
 			urlMapping.setShortUrl(shortUrl);
 		}
@@ -60,5 +73,9 @@ public class UrlGenerationService {
 		String hexSubstring = md5Hash.substring(0, 12); // first 6 bytes (12 hex characters)
 		long decimalValue = Long.parseLong(hexSubstring, 16);
 		return Base62Encoder.encode(decimalValue);// Encode the decimal value into Base62
+	}
+
+	public long getDefaultExpirationPeriodMillis() {
+		return defaultExpirationDays * 24 * 60 * 60 * 1000;
 	}
 }

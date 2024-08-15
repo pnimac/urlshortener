@@ -19,9 +19,19 @@ public class UrlMapping {
     private long creationDate;
     private long expirationDate;
 
+    private String salt; 
+    
     // Getters and setters
 
-    public String getId() {
+    public String getSalt() {
+		return salt;
+	}
+
+	public void setSalt(String salt) {
+		this.salt = salt;
+	}
+
+	public String getId() {
         return id;
     }
 

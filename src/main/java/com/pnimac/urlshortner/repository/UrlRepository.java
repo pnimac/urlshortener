@@ -10,5 +10,7 @@ public interface UrlRepository extends MongoRepository<UrlMapping, String> {
     Optional<UrlMapping> findById(String id);
     Optional<UrlMapping> findByCustomAlias(String customAlias);
     Optional<UrlMapping> findByShortUrl(String shortUrl);
+    
+    void deleteByExpirationDateBefore(long timestamp);
 
 }
