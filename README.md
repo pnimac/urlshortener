@@ -1,6 +1,8 @@
 # URLShortener
 Design a URL Shortener Service Like TinyURL.
 
+![Alt text](images/screehshot.png)
+
 # Functional Requirements:
 1. Generate a unique short URL for a given long URL.
 2. Redirect the user to the original URL when the short URL is accessed.
