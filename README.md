@@ -184,7 +184,7 @@ Redirection: Once the long URL is retrieved, the service issues an HTTP redirect
 1. A user clicks on https://yourservice.com/DZFbb43.
 2. The Redirection Service receives the request and extracts the short URL identifier (DZFbb43).
 3. The service looks up abc123 in the database or cache to find the associated long URL.
-4. The service issues a 301 or 302 HTTP redirect response with the Location header set to the long URL (e.g., https://www.example.com/long-url).
+4. The service issues a 301 or 302 HTTP redirect response with the Location header set to the long URL (e.g., https://www.example.com/long/url/to/be/shortened).
 5. The user's browser follows the redirect and lands on the original URL.
 
 # Caching for Performance
