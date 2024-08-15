@@ -1,5 +1,5 @@
 # URLShortener
-Design a URL Shortener Service Like TinyURL.
+Design a URL Shortener Service in Spring boot with React UI, providing an Redis cache, an Analytics service and scheduled jobs for purging expired entries.
 
 # Functional Requirements:
 1. Generate a unique short URL for a given long URL.
