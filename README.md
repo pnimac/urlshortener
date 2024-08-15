@@ -17,27 +17,21 @@ Design a URL Shortener Service Like TinyURL.
 
 # Capacity Esitmatation
 
-**Assumptions**
+**Assumptions:**
 * Daily URL Shortening Requests: 1 million requests per day.
 * Read-Write ratio is 100:1 (for every URL creation, we expect 100 redirects).
 * Peak Traffic: 10x the average load (100 requests per second during peak hours).
 * URL Lengths: Average original URL length of 100 characters.
 
-**Throughput Requirements**
+**Throughput Requirements:**
 
 Number of seconds in a day : 24*60*60 = 86400
-
 Number of requests expected in a day : 1 million
-
 Average Writes Per Second (WPS): (1,000,000 requests / 86,400 seconds) ≈ 12
-
-
 **Peak WPS: 12 × 10 = 120**
 
 Since Read-Write ratio is 100:1
-
 Average Redirects per second (RPS): 12 * 100 = 1,200
-
 **Peak RPS: 120 * 100 = 12,000**
 
 **Storage Estimation**
@@ -54,11 +48,9 @@ For each shortened URL, we need to store the following information:
 
 **Total Storage per Year: 365,000,000 × 127 bytes ≈ 46.4 GB**
 
-**Bandwidth Estimation**
-The total read bandwidth per day should be based on the actual peak redirects, not the average ones.
-
-Since the ratio of redirects to URL creation is 100:1, if there are 1 million URL shortening requests per day, the number of redirects per day would be:
-
+**Bandwidth Estimation:**
+The total read bandwidth per day should be based on the actual peak redirects, not the average ones. Since the ratio of redirects to URL creation is 100:1, 
+if there are 1 million URL shortening requests per day, the number of redirects per day would be:
 **1,000,000 URL shortenings × 100 = 100,000,000 redirects per day**
 
 Assuming the HTTP 301 redirect response size is about 500 bytes (includes headers and the short URL).
