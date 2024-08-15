@@ -3,6 +3,7 @@ package com.pnimac.urlshortner.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.pnimac.urlshortner.model.UrlMapping;
@@ -19,9 +20,11 @@ public class UrlRedirectionService {
 	@Autowired
 	private AnalyticsService analyticsService;
 
-	// Method to retrieve long URL for redirection
+    @Cacheable(value = "urls", key = "#shortUrl")
 	public String getLongUrl(String shortUrl, HttpServletRequest request) {
-		Optional<UrlMapping> urlMapping = urlRepository.findByShortUrl(shortUrl);
+		
+    	Optional<UrlMapping> urlMapping = urlRepository.findByShortUrl(shortUrl);
+		
 		if (urlMapping.isPresent() && urlMapping.get().getExpirationDate() > System.currentTimeMillis()) {
 
 			// Track the click
@@ -34,5 +37,4 @@ public class UrlRedirectionService {
 		throw new RuntimeException("URL not found or expired");
 	}
 
-	
 }
