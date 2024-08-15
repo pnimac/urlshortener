@@ -10,7 +10,7 @@ function App() {
     event.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8080/api/shorten', {
+      const response = await fetch('http://localhost:8080/shorten', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ function App() {
               id="longUrl"
               value={longUrl}
               onChange={(e) => setLongUrl(e.target.value)}
-              placeholder="https://example.com"
+              placeholder="https://www.example.com/long/url/to/be/shortened"
               required
             />
           </div>

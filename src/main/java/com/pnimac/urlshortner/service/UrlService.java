@@ -1,10 +1,22 @@
 package com.pnimac.urlshortner.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.pnimac.urlshortner.model.UrlMapping;
 import com.pnimac.urlshortner.repository.UrlRepository;
+import com.pnimac.urlshortner.util.Base62Encoder;
+import com.pnimac.urlshortner.util.MD5HashGenerator;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
@@ -14,13 +26,16 @@ public class UrlService {
     @Autowired
     private UrlRepository urlRepository;
 
-    // Method to generate short URL (can use Base62 encoding or custom logic)
+    @Value("${app.url.base}")
+    private String baseUrl;
+    
+    // Method to generate short URL using MD5 and Base62 encoding
     public UrlMapping createShortUrl(String longUrl, String customAlias, long expirationTime) {
         UrlMapping urlMapping = new UrlMapping();
         urlMapping.setLongUrl(longUrl);
         urlMapping.setCreationDate(System.currentTimeMillis());
         urlMapping.setExpirationDate(expirationTime);
-
+        String shortUrl;
         if (customAlias != null && !customAlias.isEmpty()) {
             // Check if custom alias already exists
             Optional<UrlMapping> existingAlias = urlRepository.findByCustomAlias(customAlias);
@@ -28,25 +43,31 @@ public class UrlService {
                 throw new RuntimeException("Custom alias already exists.");
             }
             urlMapping.setCustomAlias(customAlias);
+            shortUrl = baseUrl + "/" + customAlias;
+            urlMapping.setShortUrl(customAlias);
         } else {
-            // Generate short URL code
-            urlMapping.setId(generateShortUrl());
+            // Generate short URL code using MD5 and Base62
+            shortUrl = generateShortUrl(longUrl);
+            shortUrl = baseUrl + "/" + shortUrl;
+            urlMapping.setShortUrl(shortUrl);
         }
-
         return urlRepository.save(urlMapping);
     }
 
     // Method to retrieve long URL for redirection
     public String getLongUrl(String shortUrl) {
-        Optional<UrlMapping> urlMapping = urlRepository.findById(shortUrl);
+        Optional<UrlMapping> urlMapping = urlRepository.findByShortUrl(shortUrl);
         if (urlMapping.isPresent() && urlMapping.get().getExpirationDate() > System.currentTimeMillis()) {
             return urlMapping.get().getLongUrl();
         }
         throw new RuntimeException("URL not found or expired");
     }
 
-    private String generateShortUrl() {
-        // Implement Base62 encoding or random ID generation logic here
-        return "abc123";
+    // Generates a short URL using MD5 and Base62
+    private String generateShortUrl(String longUrl) {
+        String md5Hash = MD5HashGenerator.generateMD5(longUrl);
+        String hexSubstring = md5Hash.substring(0, 12); // first 6 bytes (12 hex characters)
+        long decimalValue = Long.parseLong(hexSubstring, 16);        
+        return Base62Encoder.encode(decimalValue);// Encode the decimal value into Base62
     }
 }

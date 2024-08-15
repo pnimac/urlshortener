@@ -29,7 +29,7 @@ public class UrlController {
     @PostMapping("/shorten")
     public UrlResponse shortenUrl(@RequestBody UrlRequest request) {
         UrlMapping urlMapping = urlService.createShortUrl(request.getLongUrl(), request.getCustomAlias(), request.getExpirationTime());
-        String shortUrl = appConfig.getBaseUrl() + urlMapping.getId();
+        String shortUrl = urlMapping.getShortUrl();
         return new UrlResponse(shortUrl);
     }
 
