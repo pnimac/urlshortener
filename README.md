@@ -216,7 +216,7 @@ Batch Processing: Process logs in batches for aggregation and storage in a data 
 ## Handling Edge Cases
 * Expired URLs : If the short URL has expired, the service should return a meaningful response (eg.. HTTP 410) rather than attempting to redirect.
 * Non-Existent URLs : If the short URL does not exist in the database, the service should handle this gracefully (eg.. HTTP 404 Not Found status code).
-* URL Conflicts : If a conflict arises where multiple long URLs could map to the same short URL (due to a hash collision or manual alias conflict), the service should have a strategy to resolve this. Implement collision detection during URL creation to prevent conflicts, and ensure that the Redirection Service always resolves to the correct long URL.
+* URL Conflicts : If a conflict arises where multiple long URLs could map to the same short URL (due to a hash collision or manual alias conflict), the service should have a strategy to resolve this. Implement collision detection during URL creation to prevent conflicts, and ensure that the Redirection Service always resolves to the correct long URL. We can use apply salting, ie. add unique salts to the URL before hashing to minimize the risk of collisions. We can also ensure that the short URL is unique in your database by adding a unique constraint.
 
 ## Security
 * Rate Limiting : To prevent abuse (e.g., spamming the service with thousands of URLs), implement rate limiting at the API layer.
