@@ -5,8 +5,8 @@ Design a URL Shortener Service Like TinyURL.
 1. Generate a unique short URL for a given long URL.
 2. Redirect the user to the original URL when the short URL is accessed.
 3. Support link expiration where URLs are no longer accessible after a certain period.
-4. Allow users to customize their short URLs (optional)
-5. Provide analytics on link usage (optional)
+4. Allow users to customize their short URLs (optional).
+5. Provide analytics on link usage (optional).
 
 # Non-Functional Requirements:
 1. High availability (the service should be up 99.9% of the time). This is really important to consider because if the service goes down, all the URL redirection will start failing.
@@ -29,7 +29,7 @@ Number of requests expected in a day : 1 million
 Average Writes Per Second (WPS): (1,000,000 requests / 86,400 seconds) ≈ 12
 **Peak WPS: 12 × 10 = 120**
 
-Since Read:Write ratio is 100:1
+Since Read-Write ratio is 100:1
 Average Redirects per second (RPS): 12 * 100 = 1,200
 **Peak RPS: 120 * 100 = 12,000**
 
@@ -42,12 +42,16 @@ For each shortened URL, we need to store the following information:
 * Click Count: 4 bytes (integer)
 
 **Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes**
+
 **Total URLs per Year: 1,000,000 × 365 = 365,000,000**
+
 **Total Storage per Year: 365,000,000 × 127 bytes ≈ 46.4 GB**
 
 **Bandwidth Estimation**
 The total read bandwidth per day should be based on the actual peak redirects, not the average ones.
+
 Since the ratio of redirects to URL creation is 100:1, if there are 1 million URL shortening requests per day, the number of redirects per day would be:
+
 **1,000,000 URL shortenings × 100 = 100,000,000 redirects per day**
 
 Assuming the HTTP 301 redirect response size is about 500 bytes (includes headers and the short URL).
@@ -59,7 +63,9 @@ Since it’s a read-heavy system, caching can significantly reduce the latency f
 
 As calculated above, Total Storage per URL: 7 + 100 + 8 + 8 + 4 = 127 bytes
 
-Since we have 1 million writes per day, if we only cache 20% of the hot urls in a day, Total cache memory required = 1M * 0.2 * 127 Bytes = 25.4 MB.
+Since we have 1 million writes per day, if we only cache 20% of the hot urls in a day, 
+Total cache memory required = 1M * 0.2 * 127 Bytes = 25.4 MB.
+
 Assuming a cache hit ratio of 90%, we only need to handle 10% of the redirect requests directly from the database.
 
 **Requests hitting the DB: 1,200 × 0.10 ≈ 120 RPS**
